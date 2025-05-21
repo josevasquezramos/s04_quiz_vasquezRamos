@@ -3,7 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="primary">#0F469A</color>
-    <color name="primary_dark">#1253B6</color>
-    <color name="red_500">#C35D56</color>
-    <color name="green_500">#4D9550</color>
+    <color name="primary_dark">#8AC6F8</color>
+    <color name="red">#E55866</color>
+    <color name="green">#389751</color>
 </resources>

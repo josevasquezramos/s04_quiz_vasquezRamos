@@ -8,12 +8,14 @@ import android.os.Vibrator
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.uns.s04_quiz_vasquezramos.R
@@ -31,9 +33,10 @@ class QuizActivity : AppCompatActivity() {
     private lateinit var correctAnswerText: TextView
     private lateinit var explanationText: TextView
     private lateinit var btnAction: Button
-    private lateinit var btnSkip: Button
+    private lateinit var btnSkip: TextView
     private lateinit var btnExit: ImageButton
     private lateinit var progressBar: ProgressBar
+    private lateinit var imgQuestion: ImageView
 
     private lateinit var questions: List<QuestionEntity>
     private var currentIndex = 0
@@ -86,10 +89,12 @@ class QuizActivity : AppCompatActivity() {
         btnExit = findViewById(R.id.btnExit)
         progressText = findViewById(R.id.txtProgress)
         progressBar = findViewById(R.id.progressBar)
+        imgQuestion = findViewById(R.id.imgQuestion)
 
         optionsGroup.setOnCheckedChangeListener { _, _ ->
             if (!answered) {
                 btnAction.isEnabled = true
+                btnAction.isClickable = true
             }
         }
 
@@ -122,7 +127,7 @@ class QuizActivity : AppCompatActivity() {
     }
 
     private fun showQuestion() {
-        progressText.text = "${currentIndex + 1}/${questions.size}"
+        progressText.text = "Pregunta ${currentIndex + 1}/${questions.size}"
         progressBar.max = questions.size
         progressBar.progress = currentIndex + 1
 
@@ -133,13 +138,53 @@ class QuizActivity : AppCompatActivity() {
 
         val q = questions[currentIndex]
         questionText.text = q.question
+
+        // Cargar la imagen si existe
+        val imageName = "quiz_${currentIndex + 1}" // quiz_1, quiz_2, etc.
+        val resId = resources.getIdentifier(imageName, "drawable", packageName)
+
+        if (resId != 0) {
+            imgQuestion.setImageResource(resId)
+            imgQuestion.visibility = View.VISIBLE
+        } else {
+            imgQuestion.visibility = View.GONE
+        }
+
         optionsGroup.removeAllViews()
         optionsGroup.clearCheck()
 
         q.options.forEachIndexed { i, option ->
-            val rb = RadioButton(this)
-            rb.text = option
-            rb.id = i
+            val rb = RadioButton(this).apply {
+                text = option
+                id = i
+
+                // Tamaño de texto
+                textSize = 16f
+
+                // Espaciado entre el círculo y el texto
+                setPadding(
+                    (24 * resources.displayMetrics.density).toInt(),
+                    (10 * resources.displayMetrics.density).toInt(),
+                    (24 * resources.displayMetrics.density).toInt(),
+                    (10 * resources.displayMetrics.density).toInt()
+                )
+
+                // Margen entre opciones
+                layoutParams = RadioGroup.LayoutParams(
+                    RadioGroup.LayoutParams.MATCH_PARENT,
+                    RadioGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    if (i > 0) {
+                        topMargin = (8 * resources.displayMetrics.density).toInt()
+                    }
+
+                    // Asegurar que el texto no quede muy pegado al borde derecho
+                    marginEnd = (16 * resources.displayMetrics.density).toInt()
+                }
+
+                // Alinear el texto correctamente respecto al círculo
+                setLineSpacing(0f, 1.2f)
+            }
             optionsGroup.addView(rb)
         }
 
@@ -147,7 +192,9 @@ class QuizActivity : AppCompatActivity() {
         correctAnswerText.visibility = View.GONE
         explanationText.visibility = View.GONE
         btnAction.text = "Comprobar"
+        btnAction.backgroundTintList = ContextCompat.getColorStateList(this, R.color.primary)
         btnAction.isEnabled = false
+        btnAction.isClickable = false
         btnSkip.isEnabled = true
         answered = false
         selectedOptionIndex = null
@@ -174,11 +221,13 @@ class QuizActivity : AppCompatActivity() {
             score++
             resultText.text = "¡Correcto!"
             mpCorrect.start()
+            btnAction.backgroundTintList = ContextCompat.getColorStateList(this, R.color.green)
         } else {
             resultText.text = "Incorrecto"
             correctAnswerText.text = "Respuesta correcta: ${questions[currentIndex].options[questions[currentIndex].correctAnswerIndex]}"
             correctAnswerText.visibility = View.VISIBLE
             mpWrong.start()
+            btnAction.backgroundTintList = ContextCompat.getColorStateList(this, R.color.red)
         }
 
         vibrator.vibrate(200)
@@ -187,6 +236,7 @@ class QuizActivity : AppCompatActivity() {
         explanationText.visibility = View.VISIBLE
         btnAction.text = "Siguiente"
         btnAction.isEnabled = true
+        btnAction.isClickable = true
 
         btnSkip.isEnabled = false
         optionsGroup.isEnabled = false
