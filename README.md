@@ -13,6 +13,8 @@
 ## Acerca del proyecto
 Aplicaciones QUIZ es una aplicación Android desarrollada como parte del cuarto laboratorio del curso de Aplicaciones Móviles de la Universidad Nacional del Santa. Esta aplicación implementa un sistema de preguntas y respuestas acerca del curso de aplicaciones móviles.
 
+https://github.com/user-attachments/assets/cce38e40-a1e5-40c5-89e0-78f502098c9c
+
 ___
 
 **Alumno:** Jose Manuel Vasquez Ramos  
